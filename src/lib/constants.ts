@@ -1,5 +1,5 @@
 // Base URL for API calls
-export const baseUrl = "https://super-awoof-d6b48f0a17a5.herokuapp.com/api/v1";
+export const baseUrl = "https://api.superawoof.ng/api/v1";
 
 // Token helpers (localStorage for web)
 export const getAccessToken = (): string | null => {
