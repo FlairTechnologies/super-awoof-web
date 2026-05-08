@@ -6,7 +6,7 @@ import axios from "axios";
 import { Input, PasswordInput } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { ToastProvider, useToast } from "@/context/ToastContext";
-import { baseUrl } from "@/lib/constants";
+import { baseUrl, setTokens, setUser } from "@/lib/constants";
 
 function SignInEmailForm() {
   const router = useRouter();
@@ -23,14 +23,7 @@ function SignInEmailForm() {
     try {
       setLoading(true);
       const response = await axios.post(`${baseUrl}/account/login`, { email, password });
-      const { setTokens, setUser } = await import("@/lib/constants");
-      const accountData = {
-        ...response.data.account,
-        coins: response.data.account.coins,
-        paymentMethod: response.data.paymentMethod,
-        mno: response.data.mno,
-      };
-      setUser(accountData);
+      setUser(response.data.account);
       setTokens(response.data.accessToken, response.data.refreshToken);
       showToast("Welcome back!", "success");
       setTimeout(() => router.push("/dashboard"), 1000);
@@ -49,12 +42,11 @@ function SignInEmailForm() {
 
   return (
     <div
+      className="app-screen"
       style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
+        padding: "24px 20px",
         justifyContent: "center",
-        padding: "40px 24px",
+        overflow: "hidden",
       }}
     >
       {/* Two-column layout on large screens */}
@@ -105,7 +97,7 @@ function SignInEmailForm() {
         {/* Right – Form */}
         <div
           className="card"
-          style={{ padding: "56px 48px", display: "flex", flexDirection: "column", gap: 40 }}
+          style={{ padding: "32px 24px", display: "flex", flexDirection: "column", gap: 24, width: "100%", maxHeight: "90dvh", overflowY: "auto" }}
         >
           {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-4">
@@ -117,10 +109,10 @@ function SignInEmailForm() {
           </div>
 
           <div>
-            <h2 className="font-display" style={{ fontSize: 32, color: "white", marginBottom: 8 }}>
+            <h2 className="font-display" style={{ fontSize: 24, color: "white", marginBottom: 4 }}>
               Sign In
             </h2>
-            <p style={{ fontSize: 14, color: "var(--muted)" }}>Enter your credentials to continue</p>
+            <p style={{ fontSize: 13, color: "var(--muted)" }}>Enter your credentials to continue</p>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

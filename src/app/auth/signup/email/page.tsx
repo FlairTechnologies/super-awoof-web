@@ -44,12 +44,11 @@ function SignUpEmailForm() {
 
   return (
     <div
+      className="app-screen"
       style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
+        padding: "24px 20px",
         justifyContent: "center",
-        padding: "40px 24px",
+        overflow: "hidden",
       }}
     >
       <div className="w-full grid grid-cols-1 md:grid-cols-2" style={{ maxWidth: 1100 }}>
@@ -96,7 +95,7 @@ function SignUpEmailForm() {
         {/* Right – Form */}
         <div
           className="card"
-          style={{ padding: "56px 48px", display: "flex", flexDirection: "column", gap: 36 }}
+          style={{ padding: "32px 24px", display: "flex", flexDirection: "column", gap: 24, width: "100%", maxHeight: "90dvh", overflowY: "auto" }}
         >
           {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-4">
@@ -108,10 +107,10 @@ function SignUpEmailForm() {
           </div>
 
           <div>
-            <h2 className="font-display" style={{ fontSize: 32, color: "white", marginBottom: 8 }}>
+            <h2 className="font-display" style={{ fontSize: 24, color: "white", marginBottom: 4 }}>
               Create Account
             </h2>
-            <p style={{ fontSize: 14, color: "var(--muted)" }}>Fill in your details to get started</p>
+            <p style={{ fontSize: 13, color: "var(--muted)" }}>Fill in your details to get started</p>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

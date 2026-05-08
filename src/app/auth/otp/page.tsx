@@ -6,7 +6,7 @@ import axios from "axios";
 import { Button } from "@/components/Button";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 
-import { baseUrl } from "@/lib/constants";
+import { baseUrl, setTokens, setUser } from "@/lib/constants";
 
 const VERIFY_URL = `${baseUrl}/account/verify`;
 const RESEND_URL = `${baseUrl}/account/send-otp`;
