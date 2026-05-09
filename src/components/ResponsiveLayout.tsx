@@ -25,6 +25,26 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
         {children}
       </main>
       <div className="md:hidden">
+        {/* Flair Technologies Credit — mobile only */}
+        <a
+          href="https://www.flairtechlabs.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "block",
+            textAlign: "center",
+            fontSize: 9,
+            color: "var(--muted)",
+            opacity: 0.45,
+            padding: "4px 0",
+            textDecoration: "none",
+            background: "var(--surface)",
+            borderTop: "1px solid var(--border)",
+            letterSpacing: "0.03em",
+          }}
+        >
+          Built by <strong style={{ color: "var(--green)", fontWeight: 700 }}>Flair Technologies Limited</strong>
+        </a>
         <TabBar />
       </div>
     </div>

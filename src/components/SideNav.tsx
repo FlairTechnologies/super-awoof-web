@@ -76,18 +76,42 @@ export const SideNav = () => {
           padding: "16px 12px",
           borderTop: "1px solid var(--border)",
           display: "flex",
-          alignItems: "center",
-          gap: 10,
+          flexDirection: "column",
+          gap: 12,
         }}
       >
-        <div
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 8, height: 8, borderRadius: "50%",
+              background: "var(--green)", flexShrink: 0,
+            }}
+            className="pulse-dot"
+          />
+          <span style={{ fontSize: 12, color: "var(--muted)" }}>Connected</span>
+        </div>
+
+        {/* Flair Technologies Credit */}
+        <a
+          href="https://www.flairtechlabs.com"
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
-            width: 8, height: 8, borderRadius: "50%",
-            background: "var(--green)", flexShrink: 0,
+            fontSize: 10,
+            color: "var(--muted)",
+            textDecoration: "none",
+            opacity: 0.55,
+            lineHeight: 1.5,
+            transition: "opacity 0.2s ease",
           }}
-          className="pulse-dot"
-        />
-        <span style={{ fontSize: 12, color: "var(--muted)" }}>Connected</span>
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.55")}
+        >
+          Built by{" "}
+          <span style={{ fontWeight: 700, color: "var(--green)" }}>
+            Flair Technologies Limited
+          </span>
+        </a>
       </div>
     </aside>
   );
