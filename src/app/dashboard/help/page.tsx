@@ -12,7 +12,7 @@ const faqs = [
   },
   {
     question: "How do I withdraw my winnings?",
-    answer: "Go to your 'Wallet' page, select 'Withdraw', and enter your bank details. Winnings are processed instantly to your bank account."
+    answer: "Go to your 'Wallet' page, select 'Withdraw', and enter your bank details. Winnings are processed between the 25th and the end of every month."
   },
   {
     question: "Is Super Awoof fair and secure?",

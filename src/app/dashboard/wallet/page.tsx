@@ -145,7 +145,14 @@ function WalletContent() {
             />
             <Button
               text="Withdraw Funds"
-              onClick={() => setShowModal(true)}
+              onClick={() => {
+                const currentDay = new Date().getDate();
+                if (currentDay < 25) {
+                  showToast("Withdrawals are disabled until the 25th of every month.", "error");
+                  return;
+                }
+                setShowModal(true);
+              }}
               disabled={parseFloat(balance) <= 0}
               style={{
                 height: 52,
@@ -158,6 +165,9 @@ function WalletContent() {
               }}
             />
           </div>
+          <p style={{ fontSize: 12, color: "var(--muted)", textAlign: "center", marginTop: -16 }}>
+            🗓️ Note: Withdrawals are open from the 25th to the end of every month.
+          </p>
         </div>
 
         {/* Transaction History Section */}

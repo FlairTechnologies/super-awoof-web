@@ -126,7 +126,7 @@ function Dashboard() {
         }}
       >
         {[
-          { label: "Jackpot",    value: "₦250k", accent: "var(--green)" },
+          { label: "Jackpot",    value: "₦50k", accent: "var(--green)" },
           { label: "Players",   value: "1.2k",    accent: "var(--gold)" },
           { label: "Top Win",  value: "₦5k",   accent: "var(--green)" },
         ].map((s) => (

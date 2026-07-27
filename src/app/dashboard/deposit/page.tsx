@@ -139,31 +139,61 @@ function DepositForm() {
         </div>
 
         {isSubscriber ? (
-          <div className="flex flex-col items-center justify-center text-center py-20 animate-fade-in" style={{ gap: 16 }}>
+          <div className="flex flex-col items-center justify-center text-center py-12 animate-fade-in" style={{ gap: 20 }}>
             <div style={{
               width: 80, height: 80, borderRadius: "50%",
               background: "rgba(29, 185, 84, 0.1)", color: "#1DB954",
               display: "flex", alignItems: "center", justifyContent: "center",
-              marginBottom: 16,
+              marginBottom: 8,
             }}>
               <CoinStackIcon size={40} active={true} />
             </div>
-            <h2 style={{ color: "white", fontSize: 24, fontWeight: 700 }}>
-              On-Demand Deposits Coming Soon
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 15, maxWidth: 480, lineHeight: 1.6 }}>
-              Your wallet will be replenished with more coins tomorrow (before your subscription elapses). Please check back then to continue playing!
-            </p>
-            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, maxWidth: 480, lineHeight: 1.5, marginTop: -4 }}>
-              If your subscription has expired, you can re-subscribe by sending <span style={{ color: "#1DB954", fontWeight: 600 }}>SA1</span> to <span style={{ color: "#1DB954", fontWeight: 600 }}>20138</span> on your MTN device.
-            </p>
+            <div>
+              <h2 style={{ color: "white", fontSize: 24, fontWeight: 700 }}>
+                Deposit Coins
+              </h2>
+              <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: 16, marginTop: 6 }}>
+                This page is coming soon
+              </p>
+            </div>
             <Button
               text="Return to Wallet"
               onClick={() => router.push("/dashboard/wallet")}
-              style={{ marginTop: 16, padding: "0 32px", height: 48, borderRadius: 12 }}
+              style={{ marginTop: 8, padding: "0 32px", height: 48, borderRadius: 12 }}
             />
-          </div>
 
+            {/* How to Resubscribe Instructions */}
+            <div
+              className="w-full rounded-2xl p-6 border text-left mt-6"
+              style={{
+                background: "rgba(21, 25, 34, 0.6)",
+                borderColor: "rgba(255, 255, 255, 0.08)",
+                maxWidth: 480,
+              }}
+            >
+              <h3 className="text-white font-bold text-base font-display mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#1DB954]" />
+                How to Resubscribe
+              </h3>
+              <p className="text-white/70 text-sm leading-relaxed mb-4">
+                If your subscription has expired or you need to renew your account via MTN billing:
+              </p>
+              <div className="space-y-2.5 text-xs text-white/80">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1DB954]/20 text-[#1DB954] font-bold text-xs flex-shrink-0">1</span>
+                  <span>Open your SMS / Messages app on your phone</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1DB954]/20 text-[#1DB954] font-bold text-xs flex-shrink-0">2</span>
+                  <span>Send <strong className="text-[#1DB954] font-bold">SA1</strong> to <strong className="text-[#1DB954] font-bold">20138</strong> from your registered MTN number</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1DB954]/20 text-[#1DB954] font-bold text-xs flex-shrink-0">3</span>
+                  <span>Once confirmed via SMS, your subscription will be renewed automatically</span>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <>
             {/* ═══════════════════════════════════════════════════
