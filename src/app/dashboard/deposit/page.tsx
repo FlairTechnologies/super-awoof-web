@@ -139,59 +139,44 @@ function DepositForm() {
         </div>
 
         {isSubscriber ? (
-          <div className="flex flex-col items-center justify-center text-center py-12 animate-fade-in" style={{ gap: 20 }}>
+          <div className="flex flex-col items-center justify-center text-center py-12 animate-fade-in" style={{ gap: 24 }}>
             <div style={{
               width: 80, height: 80, borderRadius: "50%",
               background: "rgba(29, 185, 84, 0.1)", color: "#1DB954",
               display: "flex", alignItems: "center", justifyContent: "center",
-              marginBottom: 8,
+              marginBottom: 4,
             }}>
               <CoinStackIcon size={40} active={true} />
             </div>
-            <div>
-              <h2 style={{ color: "white", fontSize: 24, fontWeight: 700 }}>
-                Deposit Coins
-              </h2>
-              <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: 16, marginTop: 6 }}>
-                This page is coming soon
-              </p>
-            </div>
-            <Button
-              text="Return to Wallet"
-              onClick={() => router.push("/dashboard/wallet")}
-              style={{ marginTop: 8, padding: "0 32px", height: 48, borderRadius: 12 }}
-            />
-
-            {/* How to Resubscribe Instructions */}
+            
             <div
-              className="w-full rounded-2xl p-6 border text-left mt-6"
+              className="w-full rounded-2xl p-6 md:p-8 border text-center"
               style={{
                 background: "rgba(21, 25, 34, 0.6)",
                 borderColor: "rgba(255, 255, 255, 0.08)",
                 maxWidth: 480,
               }}
             >
-              <h3 className="text-white font-bold text-base font-display mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#1DB954]" />
-                How to Resubscribe
-              </h3>
-              <p className="text-white/70 text-sm leading-relaxed mb-4">
-                If your subscription has expired or you need to renew your account via MTN billing:
+              <h2 style={{ color: "white", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-display)", marginBottom: 12 }}>
+                Spin Limit Reached
+              </h2>
+              <p className="text-white/80 text-base leading-relaxed">
+                You have exhausted your spin for today. Come back tomorrow to spin. You can also send <strong className="text-[#1DB954] font-bold">SA1</strong> to <strong className="text-[#1DB954] font-bold">20138</strong> if your subscription has expired.
               </p>
-              <div className="space-y-2.5 text-xs text-white/80">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1DB954]/20 text-[#1DB954] font-bold text-xs flex-shrink-0">1</span>
-                  <span>Open your SMS / Messages app on your phone</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1DB954]/20 text-[#1DB954] font-bold text-xs flex-shrink-0">2</span>
-                  <span>Send <strong className="text-[#1DB954] font-bold">SA1</strong> to <strong className="text-[#1DB954] font-bold">20138</strong> from your registered MTN number</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1DB954]/20 text-[#1DB954] font-bold text-xs flex-shrink-0">3</span>
-                  <span>Once confirmed via SMS, your subscription will be renewed automatically</span>
-                </div>
-              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full justify-center" style={{ maxWidth: 480 }}>
+              <Button
+                text="Return to Game"
+                onClick={() => router.push("/dashboard")}
+                style={{ padding: "0 32px", height: 48, borderRadius: 12, flex: 1 }}
+              />
+              <button
+                onClick={() => router.push("/dashboard/wallet")}
+                className="px-6 h-12 rounded-xl border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-semibold cursor-pointer flex-1"
+              >
+                Return to Wallet
+              </button>
             </div>
           </div>
         ) : (
