@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { getAccessToken, getUser } from "@/lib/constants";
 
 export default function SplashScreen() {
   const [progress, setProgress] = useState(0);
@@ -13,7 +14,15 @@ export default function SplashScreen() {
         const next = prev + 4;
         if (next >= 100) {
           clearInterval(interval);
-          setTimeout(() => router.push("/onboarding"), 400);
+          const token = getAccessToken();
+          const user = getUser();
+          setTimeout(() => {
+            if (token && user) {
+              router.push("/dashboard");
+            } else {
+              router.push("/onboarding");
+            }
+          }, 300);
         }
         return Math.min(next, 100);
       });

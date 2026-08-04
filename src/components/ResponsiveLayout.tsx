@@ -68,18 +68,23 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
     };
   }, [router, showToast]);
 
-  // 2. Auth Guard and Session Timeout check
+  // 2. Auth Guard and Persistent Session Check
   useEffect(() => {
     const checkAuthAndSession = () => {
+      const token = getAccessToken();
+      const u = getUser();
+
+      // If user is on an auth or onboarding shell route, but ALREADY has a valid session, auto-redirect to dashboard
       if (isShell) {
+        if (token && u && (pathname.startsWith("/auth") || pathname.startsWith("/onboarding"))) {
+          router.push("/dashboard");
+          return;
+        }
         setCheckingAuth(false);
         return;
       }
 
-      const token = getAccessToken();
-      const u = getUser();
-      
-      // Route Guard
+      // Route Guard for protected dashboard pages
       if (!token || !u) {
         clearTokens();
         localStorage.removeItem("loginTimestamp");
@@ -87,31 +92,11 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
         return;
       }
 
-      // Session Timeout Guard (4 Hours)
-      const loginTime = localStorage.getItem("loginTimestamp");
-      if (loginTime) {
-        const elapsed = Date.now() - parseInt(loginTime, 10);
-        const fourHours = 4 * 60 * 60 * 1000;
-        if (elapsed > fourHours) {
-          clearTokens();
-          localStorage.removeItem("loginTimestamp");
-          showToast("Your session has expired (4-hour limit). Please log in again.", "error");
-          router.push("/auth/signin");
-          return;
-        }
-      } else {
-        // If logged in but no timestamp, set it now to avoid instant logout
-        localStorage.setItem("loginTimestamp", Date.now().toString());
-      }
-
       setCheckingAuth(false);
     };
 
     checkAuthAndSession();
-    // Periodically check session timeout (e.g. every 30 seconds)
-    const interval = setInterval(checkAuthAndSession, 30000);
-    return () => clearInterval(interval);
-  }, [isShell, router, showToast]);
+  }, [isShell, pathname, router]);
 
   if (checkingAuth && !isShell) {
     return (
