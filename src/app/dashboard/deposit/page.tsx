@@ -135,7 +135,9 @@ function DepositForm() {
           >
             <ChevronLeft size={18} />
           </button>
-          <h1 className="text-white font-bold text-2xl font-display">Deposit Coins</h1>
+          <h1 className="text-white font-bold text-2xl font-display">
+            {isSubscriber ? "Spin Limit Reached" : "Deposit Coins"}
+          </h1>
         </div>
 
         {isSubscriber ? (

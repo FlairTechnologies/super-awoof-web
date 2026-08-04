@@ -92,11 +92,29 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
         return;
       }
 
+      // Session Timeout Guard (6 Hours)
+      const loginTime = localStorage.getItem("loginTimestamp");
+      if (loginTime) {
+        const elapsed = Date.now() - parseInt(loginTime, 10);
+        const sixHours = 6 * 60 * 60 * 1000;
+        if (elapsed > sixHours) {
+          clearTokens();
+          localStorage.removeItem("loginTimestamp");
+          showToast("Your session has expired (6-hour limit). Please log in again.", "error");
+          router.push("/auth/signin");
+          return;
+        }
+      } else {
+        localStorage.setItem("loginTimestamp", Date.now().toString());
+      }
+
       setCheckingAuth(false);
     };
 
     checkAuthAndSession();
-  }, [isShell, pathname, router]);
+    const interval = setInterval(checkAuthAndSession, 30000);
+    return () => clearInterval(interval);
+  }, [isShell, pathname, router, showToast]);
 
   if (checkingAuth && !isShell) {
     return (
