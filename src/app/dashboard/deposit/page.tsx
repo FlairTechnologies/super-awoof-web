@@ -139,52 +139,224 @@ function DepositForm() {
         </div>
 
         {isSubscriber ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center my-auto py-2 animate-fade-in w-full">
+          <div
+            className="flex-1 flex flex-col items-center justify-center animate-fade-in w-full relative overflow-hidden"
+            style={{ minHeight: "calc(100dvh - 180px)" }}
+          >
+            {/* Background ambient orbs */}
             <div
-              className="w-full rounded-3xl p-6 sm:p-8 border border-white/10 text-center flex flex-col items-center justify-center gap-6"
               style={{
-                background: "transparent",
-                maxWidth: 440,
+                position: "absolute",
+                top: "10%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 320,
+                height: 320,
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(29, 185, 84, 0.08) 0%, transparent 70%)",
+                pointerEvents: "none",
+                filter: "blur(40px)",
               }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: "5%",
+                right: "-10%",
+                width: 200,
+                height: 200,
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(29, 185, 84, 0.05) 0%, transparent 70%)",
+                pointerEvents: "none",
+                filter: "blur(30px)",
+              }}
+            />
+
+            <div
+              className="w-full flex flex-col items-center justify-center text-center gap-8"
+              style={{ maxWidth: 420, position: "relative", zIndex: 1 }}
             >
-              {/* Icon */}
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: "50%",
-                  background: "rgba(29, 185, 84, 0.12)",
-                  border: "1px solid rgba(29, 185, 84, 0.25)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <CoinStackIcon size={40} active={true} />
+              {/* Glowing coin icon with layered rings */}
+              <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {/* Outer glow ring */}
+                <div
+                  style={{
+                    position: "absolute",
+                    width: 120,
+                    height: 120,
+                    borderRadius: "50%",
+                    background: "rgba(29, 185, 84, 0.06)",
+                    border: "1px solid rgba(29, 185, 84, 0.1)",
+                    animation: "pulse 3s ease-in-out infinite",
+                  }}
+                />
+                {/* Middle ring */}
+                <div
+                  style={{
+                    position: "absolute",
+                    width: 96,
+                    height: 96,
+                    borderRadius: "50%",
+                    background: "rgba(29, 185, 84, 0.08)",
+                    border: "1px solid rgba(29, 185, 84, 0.15)",
+                  }}
+                />
+                {/* Inner icon container */}
+                <div
+                  style={{
+                    width: 76,
+                    height: 76,
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, rgba(29, 185, 84, 0.2) 0%, rgba(29, 185, 84, 0.08) 100%)",
+                    border: "1.5px solid rgba(29, 185, 84, 0.35)",
+                    boxShadow: "0 0 24px rgba(29, 185, 84, 0.25), inset 0 1px 0 rgba(255,255,255,0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                    zIndex: 2,
+                  }}
+                >
+                  <CoinStackIcon size={42} active={true} />
+                </div>
               </div>
 
               {/* Title & Body */}
-              <div className="flex flex-col items-center justify-center text-center">
-                <h2 style={{ color: "white", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-display)", marginBottom: 12 }}>
-                  Spin Limit Reached
-                </h2>
-                <p className="text-white/80 text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
-                  You have exhausted your spin for today. Come back tomorrow to spin. You can also send <strong className="text-[#1DB954] font-bold">SA1</strong> to <strong className="text-[#1DB954] font-bold">20138</strong> if your subscription has expired.
+              <div className="flex flex-col items-center gap-4">
+                <div>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      color: "rgba(29, 185, 84, 0.8)",
+                      marginBottom: 10,
+                    }}
+                  >
+                    Daily Limit
+                  </p>
+                  <h2
+                    className="font-display"
+                    style={{
+                      color: "white",
+                      fontSize: 28,
+                      fontWeight: 800,
+                      lineHeight: 1.2,
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    Spin Limit Reached
+                  </h2>
+                </div>
+                <p
+                  style={{
+                    color: "rgba(255,255,255,0.6)",
+                    fontSize: 15,
+                    lineHeight: 1.7,
+                    maxWidth: 340,
+                  }}
+                >
+                  You&apos;ve used all your spins for today. Come back tomorrow for a fresh set of spins.
                 </p>
               </div>
 
-              {/* Action Buttons inside Card */}
-              <div className="flex flex-col sm:flex-row gap-3.5 w-full pt-2">
+              {/* SMS shortcode info pill */}
+              <div
+                style={{
+                  width: "100%",
+                  padding: "16px 20px",
+                  borderRadius: 16,
+                  background: "rgba(29, 185, 84, 0.05)",
+                  border: "1px solid rgba(29, 185, 84, 0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  textAlign: "left",
+                }}
+              >
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    background: "rgba(29, 185, 84, 0.12)",
+                    border: "1px solid rgba(29, 185, 84, 0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    fontSize: 16,
+                  }}
+                >
+                  📲
+                </div>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>
+                  Subscription expired? Send{" "}
+                  <span
+                    style={{
+                      color: "#1DB954",
+                      fontWeight: 700,
+                      background: "rgba(29, 185, 84, 0.1)",
+                      padding: "1px 6px",
+                      borderRadius: 6,
+                    }}
+                  >
+                    SA1
+                  </span>{" "}
+                  to{" "}
+                  <span
+                    style={{
+                      color: "#1DB954",
+                      fontWeight: 700,
+                      background: "rgba(29, 185, 84, 0.1)",
+                      padding: "1px 6px",
+                      borderRadius: 6,
+                    }}
+                  >
+                    20138
+                  </span>{" "}
+                  to renew.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
                 <Button
                   text="Return to Game"
                   onClick={() => router.push("/dashboard")}
-                  style={{ padding: "0 24px", height: 56, borderRadius: 14, flex: 1, fontSize: 15, fontWeight: 800 }}
+                  style={{
+                    height: 56,
+                    borderRadius: 16,
+                    fontSize: 15,
+                    fontWeight: 800,
+                    letterSpacing: "0.01em",
+                  }}
                 />
                 <button
                   onClick={() => router.push("/dashboard/wallet")}
-                  className="px-6 h-14 rounded-2xl border border-white/15 bg-transparent text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm font-bold cursor-pointer flex-1 flex items-center justify-center"
+                  style={{
+                    height: 52,
+                    borderRadius: 14,
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    background: "rgba(255, 255, 255, 0.03)",
+                    color: "rgba(255,255,255,0.65)",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    width: "100%",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.target as HTMLButtonElement).style.color = "white";
+                    (e.target as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.target as HTMLButtonElement).style.color = "rgba(255,255,255,0.65)";
+                    (e.target as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)";
+                  }}
                 >
-                  Return to Wallet
+                  Go to Wallet
                 </button>
               </div>
             </div>
