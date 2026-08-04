@@ -128,57 +128,68 @@ function DepositForm() {
       <div style={{ maxWidth: isSubscriber ? 680 : 860, margin: "0 auto", width: "100%" }}>
 
         {/* Back + Page title */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 40 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
           <button
             onClick={() => router.back()}
             className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/8 transition-all cursor-pointer flex-shrink-0"
           >
             <ChevronLeft size={18} />
           </button>
-          <h1 className="text-white font-bold text-2xl font-display">
-            {isSubscriber ? "Spin Limit Reached" : "Deposit Coins"}
-          </h1>
+          <h1 className="text-white font-bold text-2xl font-display">Deposit Coins</h1>
         </div>
 
         {isSubscriber ? (
-          <div className="flex flex-col items-center justify-center text-center py-12 animate-fade-in" style={{ gap: 24 }}>
-            <div style={{
-              width: 80, height: 80, borderRadius: "50%",
-              background: "rgba(29, 185, 84, 0.1)", color: "#1DB954",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              marginBottom: 4,
-            }}>
-              <CoinStackIcon size={40} active={true} />
-            </div>
-            
+          <div className="flex flex-col items-center justify-center min-h-[55vh] py-4 animate-fade-in">
             <div
-              className="w-full rounded-2xl p-6 md:p-8 border text-center"
+              className="w-full rounded-3xl p-6 sm:p-8 border text-center flex flex-col items-center gap-6"
               style={{
-                background: "rgba(21, 25, 34, 0.6)",
-                borderColor: "rgba(255, 255, 255, 0.08)",
-                maxWidth: 480,
+                background: "rgba(21, 25, 34, 0.75)",
+                borderColor: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(12px)",
+                maxWidth: 460,
+                boxShadow: "0 16px 40px rgba(0, 0, 0, 0.4)",
               }}
             >
-              <h2 style={{ color: "white", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-display)", marginBottom: 12 }}>
-                Spin Limit Reached
-              </h2>
-              <p className="text-white/80 text-base leading-relaxed">
-                You have exhausted your spin for today. Come back tomorrow to spin. You can also send <strong className="text-[#1DB954] font-bold">SA1</strong> to <strong className="text-[#1DB954] font-bold">20138</strong> if your subscription has expired.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 w-full justify-center" style={{ maxWidth: 480 }}>
-              <Button
-                text="Return to Game"
-                onClick={() => router.push("/dashboard")}
-                style={{ padding: "0 32px", height: 48, borderRadius: 12, flex: 1 }}
-              />
-              <button
-                onClick={() => router.push("/dashboard/wallet")}
-                className="px-6 h-12 rounded-xl border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-semibold cursor-pointer flex-1"
+              {/* Icon */}
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  background: "rgba(29, 185, 84, 0.12)",
+                  border: "1px solid rgba(29, 185, 84, 0.25)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                Return to Wallet
-              </button>
+                <CoinStackIcon size={38} active={true} />
+              </div>
+
+              {/* Title & Body */}
+              <div>
+                <h2 style={{ color: "white", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-display)", marginBottom: 12 }}>
+                  Spin Limit Reached
+                </h2>
+                <p className="text-white/80 text-sm sm:text-base leading-relaxed">
+                  You have exhausted your spin for today. Come back tomorrow to spin. You can also send <strong className="text-[#1DB954] font-bold">SA1</strong> to <strong className="text-[#1DB954] font-bold">20138</strong> if your subscription has expired.
+                </p>
+              </div>
+
+              {/* Action Buttons inside Card */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full pt-2">
+                <Button
+                  text="Return to Game"
+                  onClick={() => router.push("/dashboard")}
+                  style={{ padding: "0 24px", height: 48, borderRadius: 12, flex: 1 }}
+                />
+                <button
+                  onClick={() => router.push("/dashboard/wallet")}
+                  className="px-6 h-12 rounded-xl border border-white/15 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm font-semibold cursor-pointer flex-1"
+                >
+                  Return to Wallet
+                </button>
+              </div>
             </div>
           </div>
         ) : (
