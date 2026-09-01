@@ -5,12 +5,14 @@ import Image from "next/image";
 import axios from "axios";
 import { Button } from "@/components/Button";
 import { ToastProvider, useToast } from "@/context/ToastContext";
-import { baseUrl, getAccessToken } from "@/lib/constants";
+import { baseUrl, getAccessToken, getUser } from "@/lib/constants";
+import { canDeposit } from "@/lib/features";
 import { X, ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
 
 function WalletContent() {
   const router = useRouter();
   const { showToast } = useToast();
+  const [walletUser, setWalletUser] = useState<any>(null);
   const [balance, setBalance] = useState("0");
   const [banks, setBanks] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
@@ -20,6 +22,10 @@ function WalletContent() {
   const [amount, setAmount] = useState("");
   const [beneficiaryName, setBeneficiaryName] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setWalletUser(getUser());
+  }, []);
 
   useEffect(() => {
     const token = getAccessToken();
@@ -132,17 +138,19 @@ function WalletContent() {
             </div>
           </div>
           
-          <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: 32, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-            <Button
-              text="Deposit"
-              onClick={() => router.push("/dashboard/deposit")}
-              style={{
-                height: 52,
-                borderRadius: 16,
-                fontSize: 15,
-                fontWeight: 700,
-              }}
-            />
+          <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: 32, display: "grid", gridTemplateColumns: canDeposit(walletUser) ? "1fr 1fr" : "1fr", gap: 20 }}>
+            {canDeposit(walletUser) && (
+              <Button
+                text="Deposit"
+                onClick={() => router.push("/dashboard/deposit")}
+                style={{
+                  height: 52,
+                  borderRadius: 16,
+                  fontSize: 15,
+                  fontWeight: 700,
+                }}
+              />
+            )}
             <Button
               text="Withdraw Funds"
               onClick={() => {

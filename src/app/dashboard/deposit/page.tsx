@@ -6,6 +6,7 @@ import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { baseUrl, getAccessToken, getUser } from "@/lib/constants";
+import { canDeposit } from "@/lib/features";
 import { ArrowDownUp, X, ChevronLeft } from "lucide-react";
 
 const PACKAGES = [
@@ -111,6 +112,17 @@ function DepositForm() {
   };
 
   if (!user) {
+    return (
+      <div className="page-container min-h-screen bg-[#0F1219] flex items-center justify-center">
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  // Deposit is gated while the VAS licence is outstanding; bounce subscribers
+  // so the page cannot be reached by typing the URL.
+  if (!canDeposit(user)) {
+    router.replace("/dashboard/wallet");
     return (
       <div className="page-container min-h-screen bg-[#0F1219] flex items-center justify-center">
         <div className="spinner" />

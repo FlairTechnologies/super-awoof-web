@@ -7,6 +7,7 @@ import { SlotMachine } from "@/components/SlotMachine";
 import { Modal } from "@/components/Modal";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { baseUrl, getUser, getAccessToken, setUser } from "@/lib/constants";
+import { canDeposit } from "@/lib/features";
 
 function Dashboard() {
   const router = useRouter();
@@ -25,7 +26,8 @@ function Dashboard() {
 
   const handleSpin = async () => {
     if (!user || user.coins <= 0) {
-      setDepositModal(true);
+      if (canDeposit(user)) setDepositModal(true);
+      else router.push("/dashboard/wallet");
       return null;
     }
     try {
@@ -81,7 +83,9 @@ function Dashboard() {
 
         {/* Coin Balance */}
         <button
-          onClick={() => setDepositModal(true)}
+          onClick={() =>
+            canDeposit(user) ? setDepositModal(true) : router.push("/dashboard/wallet")
+          }
           style={{
             display: "flex",
             alignItems: "center",
@@ -110,7 +114,9 @@ function Dashboard() {
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px 20px", overflow: "hidden" }}>
         <SlotMachine
           coins={user?.coins ?? 0}
-          onNoCoins={() => setDepositModal(true)}
+          onNoCoins={() =>
+            canDeposit(user) ? setDepositModal(true) : router.push("/dashboard/wallet")
+          }
           onSpin={handleSpin}
         />
       </div>
@@ -146,10 +152,16 @@ function Dashboard() {
         visible={depositModal}
         onClose={() => setDepositModal(false)}
         title="Your Balance"
-        confirmText="Deposit Coins"
-        cancelText="Wallet"
-        onConfirm={() => { setDepositModal(false); router.push("/dashboard/deposit"); }}
-        onCancel={() => { setDepositModal(false); router.push("/dashboard/wallet"); }}
+        confirmText={canDeposit(user) ? "Deposit Coins" : "Wallet"}
+        cancelText={canDeposit(user) ? "Wallet" : "Close"}
+        onConfirm={() => {
+          setDepositModal(false);
+          router.push(canDeposit(user) ? "/dashboard/deposit" : "/dashboard/wallet");
+        }}
+        onCancel={() => {
+          setDepositModal(false);
+          if (canDeposit(user)) router.push("/dashboard/wallet");
+        }}
       >
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "48px 0 32px 0" }}>
           <div style={{ textAlign: "center" }}>

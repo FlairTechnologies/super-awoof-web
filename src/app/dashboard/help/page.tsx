@@ -1,15 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getUser } from "@/lib/constants";
+import { canDeposit } from "@/lib/features";
 
-const faqs = [
+const buildFaqs = (depositAvailable: boolean) => [
   {
     question: "How do I play Super Awoof?",
     answer: "Playing is simple! Go to the 'Play' tab on your dashboard, make sure you have coins, and click 'Spin'. Every spin consumes 1 coin and gives you a chance to match symbols and win cash prizes."
   },
-  {
-    question: "How do I deposit coins or subscribe?",
-    answer: "You can deposit coins by tapping your balance on the top right or navigating to the 'Wallet' / 'Deposit' options. For MTN users, you can subscribe automatically by sending 'SA1' to 20138 on your mobile device."
-  },
+  depositAvailable
+    ? {
+        question: "How do I deposit coins or subscribe?",
+        answer: "You can deposit coins by tapping your balance on the top right or navigating to the 'Wallet' / 'Deposit' options. For MTN users, you can subscribe automatically by sending 'SA1' to 20138 on your mobile device."
+      }
+    : {
+        question: "How do I get coins?",
+        answer: "Send 'SA1' to 20138 from your MTN line to subscribe. Coins are credited to your account automatically each time your subscription renews."
+      },
   {
     question: "How do I withdraw my winnings?",
     answer: "Go to your 'Wallet' page, select 'Withdraw', and enter your bank details. Winnings are processed between the 25th and the end of every month."
@@ -22,6 +29,13 @@ const faqs = [
 
 export default function HelpPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [depositAvailable, setDepositAvailable] = useState(false);
+
+  useEffect(() => {
+    setDepositAvailable(canDeposit(getUser()));
+  }, []);
+
+  const faqs = buildFaqs(depositAvailable);
 
   const toggleFaq = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
