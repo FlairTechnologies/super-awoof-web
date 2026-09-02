@@ -7,7 +7,8 @@ import { Button } from "@/components/Button";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { baseUrl, getAccessToken, getUser } from "@/lib/constants";
 import { canDeposit } from "@/lib/features";
-import { X, ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
+import { WithdrawModal, WithdrawPayload } from "@/components/WithdrawModal";
+import { ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
 
 function WalletContent() {
   const router = useRouter();
@@ -17,10 +18,6 @@ function WalletContent() {
   const [banks, setBanks] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedBank, setSelectedBank] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [amount, setAmount] = useState("");
-  const [beneficiaryName, setBeneficiaryName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,45 +38,32 @@ function WalletContent() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (accountNumber.length === 10 && selectedBank) {
-      const token = getAccessToken();
-      axios.get(`${baseUrl}/wallet/confirm-account?accountNo=${accountNumber}&bankCode=${selectedBank}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((r) => setBeneficiaryName(r.data?.data?.account_name || "Invalid Account"))
-        .catch(() => setBeneficiaryName("Error retrieving name"));
-    } else {
-      setBeneficiaryName("");
-    }
-  }, [accountNumber, selectedBank]);
+  const refreshWallet = () => {
+    const token = getAccessToken();
+    axios.get(`${baseUrl}/wallet`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => setBalance(r.data.balance))
+      .catch(() => {});
+    axios.get(`${baseUrl}/wallet/history`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => setHistory(r.data || []))
+      .catch(() => {});
+  };
 
-  const handleWithdraw = async () => {
-    if (!selectedBank || !accountNumber || !amount) {
-      showToast("Please fill all fields.", "error");
-      return;
-    }
+  const handleWithdraw = async (payload: WithdrawPayload): Promise<boolean> => {
     try {
       setLoading(true);
       const token = getAccessToken();
       const res = await axios.post(
         `${baseUrl}/wallet/withdraw`,
-        { bankCode: selectedBank, bankName: selectedBank, accountNo: accountNumber, accountName: beneficiaryName, amount: Number(amount) },
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       showToast(res?.data?.message || "Withdrawal Successful!", "success");
       setShowModal(false);
-      setAccountNumber(""); setAmount(""); setBeneficiaryName(""); setSelectedBank("");
-      
-      // Refresh wallet balance and transaction logs
-      axios.get(`${baseUrl}/wallet`, { headers: { Authorization: `Bearer ${token}` } })
-        .then((r) => setBalance(r.data.balance))
-        .catch(() => {});
-      axios.get(`${baseUrl}/wallet/history`, { headers: { Authorization: `Bearer ${token}` } })
-        .then((r) => setHistory(r.data || []))
-        .catch(() => {});
+      refreshWallet();
+      return true;
     } catch (error: any) {
       showToast(error.response?.data?.message || "Withdrawal failed.", "error");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -153,14 +137,7 @@ function WalletContent() {
             )}
             <Button
               text="Withdraw Funds"
-              onClick={() => {
-                const currentDay = new Date().getDate();
-                if (currentDay < 25) {
-                  showToast("Withdrawals are disabled until the 25th of every month.", "error");
-                  return;
-                }
-                setShowModal(true);
-              }}
+              onClick={() => setShowModal(true)}
               disabled={parseFloat(balance) <= 0}
               style={{
                 height: 52,
@@ -173,9 +150,6 @@ function WalletContent() {
               }}
             />
           </div>
-          <p style={{ fontSize: 12, color: "var(--muted)", textAlign: "center", marginTop: -16 }}>
-            🗓️ Note: Withdrawals are open from the 25th to the end of every month.
-          </p>
         </div>
 
         {/* Transaction History Section */}
@@ -254,81 +228,14 @@ function WalletContent() {
         </div>
       </div>
 
-      {/* Rebuilt Withdrawal Modal */}
-      {showModal && (
-        <div
-          className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4"
-          style={{ backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            className="modal-card animate-fade-in"
-            style={{ width: "100%", maxWidth: 400, padding: 28, position: "relative" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-[#A8A8A8] hover:text-white transition-colors">
-              <X size={22} />
-            </button>
-            <h2 className="text-white text-xl font-bold font-display mb-6">Confirm Withdrawal</h2>
-
-            <div className="flex flex-col gap-4">
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <span className="label">Select Bank</span>
-                <select
-                  value={selectedBank}
-                  onChange={(e) => setSelectedBank(e.target.value)}
-                  className="input"
-                  style={{
-                    appearance: "none",
-                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 20px center",
-                    backgroundSize: "16px",
-                  }}
-                >
-                  <option value="" style={{ background: "var(--surface-solid)", color: "white" }}>Select Bank</option>
-                  {banks.map((b: any) => (
-                    <option key={b.id} value={b.code} style={{ background: "var(--surface-solid)", color: "white" }}>{b.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <span className="label">Account Number</span>
-                <input
-                  type="text"
-                  pattern="[0-9]*"
-                  inputMode="numeric"
-                  maxLength={10}
-                  placeholder="Enter 10 digits"
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
-                  className="input"
-                />
-              </div>
-
-              {beneficiaryName && (
-                <p className="text-[#00A859] text-sm text-center font-semibold animate-fade-in" style={{ textShadow: "0 0 8px var(--green-glow)" }}>
-                  {beneficiaryName}
-                </p>
-              )}
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <span className="label">Amount (Naira)</span>
-                <input
-                  type="number"
-                  placeholder="Enter amount"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="input"
-                />
-              </div>
-
-              <Button text="Withdraw" onClick={handleWithdraw} isLoading={loading} className="mt-4" />
-            </div>
-          </div>
-        </div>
-      )}
+      <WithdrawModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        balance={parseFloat(balance) || 0}
+        banks={banks}
+        loading={loading}
+        onSubmit={handleWithdraw}
+      />
 
     </div>
   );

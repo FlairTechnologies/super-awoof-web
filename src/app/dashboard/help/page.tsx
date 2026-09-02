@@ -19,7 +19,7 @@ const buildFaqs = (depositAvailable: boolean) => [
       },
   {
     question: "How do I withdraw my winnings?",
-    answer: "Go to your 'Wallet' page, select 'Withdraw', and enter your bank details. Winnings are processed between the 25th and the end of every month."
+    answer: "Go to your 'Wallet' page, select 'Withdraw', and enter your bank details. Winnings are processed once your request is approved."
   },
   {
     question: "Is Super Awoof fair and secure?",

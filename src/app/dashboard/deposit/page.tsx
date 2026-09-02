@@ -246,7 +246,7 @@ function DepositForm() {
                       marginBottom: 10,
                     }}
                   >
-                    Daily Limit
+                    Out of Spins
                   </p>
                   <h2
                     className="font-display"
@@ -258,7 +258,7 @@ function DepositForm() {
                       letterSpacing: "-0.02em",
                     }}
                   >
-                    Spin Limit Reached
+                    No Spins Left
                   </h2>
                 </div>
                 <p
@@ -269,7 +269,7 @@ function DepositForm() {
                     maxWidth: 340,
                   }}
                 >
-                  You&apos;ve used all your spins for today. Come back tomorrow for a fresh set of spins.
+                  You&apos;ve used up all your spins. Renew your subscription to get a fresh set of coins.
                 </p>
               </div>
 
@@ -304,7 +304,7 @@ function DepositForm() {
                   📲
                 </div>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>
-                  Subscription expired? Send{" "}
+                  Send{" "}
                   <span
                     style={{
                       color: "#1DB954",
@@ -328,7 +328,7 @@ function DepositForm() {
                   >
                     20138
                   </span>{" "}
-                  to renew.
+                  to renew and keep spinning.
                 </p>
               </div>
 

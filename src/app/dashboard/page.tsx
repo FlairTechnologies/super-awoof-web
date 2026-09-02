@@ -5,6 +5,7 @@ import Image from "next/image";
 import axios from "axios";
 import { SlotMachine } from "@/components/SlotMachine";
 import { Modal } from "@/components/Modal";
+import { OutOfSpinsModal } from "@/components/OutOfSpinsModal";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { baseUrl, getUser, getAccessToken, setUser } from "@/lib/constants";
 import { canDeposit } from "@/lib/features";
@@ -14,6 +15,14 @@ function Dashboard() {
   const { showToast } = useToast();
   const [user, setUserState] = useState<any>(null);
   const [depositModal, setDepositModal] = useState(false);
+  const [outOfSpinsModal, setOutOfSpinsModal] = useState(false);
+
+  // Out of coins: players who can buy more see the balance/deposit modal, the
+  // rest see the out-of-spins modal instead of being bounced to the wallet.
+  const handleNoCoins = () => {
+    if (canDeposit(user)) setDepositModal(true);
+    else setOutOfSpinsModal(true);
+  };
 
   useEffect(() => {
     const u = getUser();
@@ -26,8 +35,7 @@ function Dashboard() {
 
   const handleSpin = async () => {
     if (!user || user.coins <= 0) {
-      if (canDeposit(user)) setDepositModal(true);
-      else router.push("/dashboard/wallet");
+      handleNoCoins();
       return null;
     }
     try {
@@ -84,7 +92,9 @@ function Dashboard() {
         {/* Coin Balance */}
         <button
           onClick={() =>
-            canDeposit(user) ? setDepositModal(true) : router.push("/dashboard/wallet")
+            canDeposit(user) || (user?.coins ?? 0) <= 0
+              ? handleNoCoins()
+              : router.push("/dashboard/wallet")
           }
           style={{
             display: "flex",
@@ -114,9 +124,7 @@ function Dashboard() {
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px 20px", overflow: "hidden" }}>
         <SlotMachine
           coins={user?.coins ?? 0}
-          onNoCoins={() =>
-            canDeposit(user) ? setDepositModal(true) : router.push("/dashboard/wallet")
-          }
+          onNoCoins={handleNoCoins}
           onSpin={handleSpin}
         />
       </div>
@@ -174,6 +182,16 @@ function Dashboard() {
           </div>
         </div>
       </Modal>
+
+      {/* Out of Spins Modal (players who cannot buy coins) */}
+      <OutOfSpinsModal
+        visible={outOfSpinsModal}
+        onClose={() => setOutOfSpinsModal(false)}
+        onSecondary={() => {
+          setOutOfSpinsModal(false);
+          router.push("/dashboard/wallet");
+        }}
+      />
     </div>
   );
 }
