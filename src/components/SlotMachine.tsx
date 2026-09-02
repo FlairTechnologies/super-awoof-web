@@ -13,7 +13,73 @@ const SYMBOLS = [
 ];
 
 const REEL_COUNT = 3;
+const ROW_COUNT = 3;
+const REELS_KEY = "slotReels";
 const rnd = () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+
+/**
+ * The board the server renders. Fixed, so the prerendered HTML and the first
+ * client render agree; the real board is restored on mount.
+ */
+const PLACEHOLDER_REELS: string[][] = [
+  [SYMBOLS[0], SYMBOLS[1], SYMBOLS[2]],
+  [SYMBOLS[3], SYMBOLS[4], SYMBOLS[5]],
+  [SYMBOLS[6], SYMBOLS[0], SYMBOLS[1]],
+];
+
+const rowIsAligned = (reels: string[][], row: number) =>
+  reels.every((reel) => reel[row] === reels[0][row]);
+
+const hasAlignedRow = (reels: string[][]) =>
+  Array.from({ length: ROW_COUNT }, (_, row) => row).some((row) => rowIsAligned(reels, row));
+
+/**
+ * An at-rest board. Three matching icons is what a win looks like, so a board
+ * the player did not spin for must never show one - redraw until no row lines
+ * up. Only the middle row pays, but any lined-up row reads as a win.
+ */
+const makeIdleReels = (): string[][] => {
+  let reels: string[][];
+  do {
+    reels = Array.from({ length: REEL_COUNT }, () => [rnd(), rnd(), rnd()]);
+  } while (hasAlignedRow(reels));
+  return reels;
+};
+
+const isValidBoard = (value: unknown): value is string[][] =>
+  Array.isArray(value) &&
+  value.length === REEL_COUNT &&
+  value.every(
+    (reel) =>
+      Array.isArray(reel) &&
+      reel.length === ROW_COUNT &&
+      reel.every((symbol) => SYMBOLS.includes(symbol))
+  );
+
+/**
+ * The board carries across page changes and reloads, so the machine looks like
+ * the same machine the player left. A stored winning board is not restored -
+ * it would show a jackpot with no spin behind it.
+ */
+const readStoredReels = (): string[][] | null => {
+  try {
+    const raw = localStorage.getItem(REELS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!isValidBoard(parsed) || hasAlignedRow(parsed)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const storeReels = (reels: string[][]) => {
+  try {
+    localStorage.setItem(REELS_KEY, JSON.stringify(reels));
+  } catch {
+    // A blocked or full localStorage only costs us the remembered board.
+  }
+};
 
 interface SlotMachineProps {
   coins: number;
@@ -22,9 +88,7 @@ interface SlotMachineProps {
 }
 
 export const SlotMachine = ({ coins, onNoCoins, onSpin }: SlotMachineProps) => {
-  const [reels, setReels] = useState<string[][]>(
-    Array.from({ length: REEL_COUNT }, () => [rnd(), rnd(), rnd()])
-  );
+  const [reels, setReels] = useState<string[][]>(PLACEHOLDER_REELS);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<"win" | "lose" | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -39,6 +103,19 @@ export const SlotMachine = ({ coins, onNoCoins, onSpin }: SlotMachineProps) => {
 
   useEffect(() => {
     audioRef.current = new Audio("/audio/winning_slot.wav");
+  }, []);
+
+  // Restore the board the player last saw, or draw a fresh non-winning one.
+  // Runs after mount so the prerendered markup is never randomised underneath.
+  useEffect(() => {
+    const restored = readStoredReels();
+    if (restored) {
+      setReels(restored);
+      return;
+    }
+    const fresh = makeIdleReels();
+    setReels(fresh);
+    storeReels(fresh);
   }, []);
 
   const playSynthSound = (type: "spin" | "stop") => {
@@ -132,6 +209,7 @@ export const SlotMachine = ({ coins, onNoCoins, onSpin }: SlotMachineProps) => {
       playSynthSound("stop");
       setReels((prev) => [prev[0], prev[1], res.reels[2]]);
 
+      storeReels(res.reels);
       setResult(res.isWin ? "win" : "lose");
       if (res.isWin && audioRef.current) audioRef.current.play().catch(() => {});
       setTimeout(() => setResult(null), 3000);
