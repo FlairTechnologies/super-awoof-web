@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { ToastProvider } from "@/context/ToastContext";
@@ -10,6 +10,13 @@ export const metadata: Metadata = {
     icon: "/images/favicon.png",
     apple: "/images/favicon.png",
   },
+};
+
+// Keeps the browser's own chrome dark on iOS Safari rather than defaulting to
+// a light bar below the page.
+export const viewport: Viewport = {
+  themeColor: "#0A0C10",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

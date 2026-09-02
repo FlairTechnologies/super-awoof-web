@@ -2,6 +2,11 @@
 
 /* ─── Design Tokens ─────────────────────────────────────── */
 :root {
+  /* Tells the browser this is a dark UI, so every surface it paints itself -
+     overscroll, form controls, scrollbars - follows suit instead of going
+     white underneath the page. */
+  color-scheme: dark;
+
   --green: #1DB954;
   --green-dim: rgba(29, 185, 84, 0.12);
   --green-glow: rgba(29, 185, 84, 0.35);
@@ -25,8 +30,13 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  height: 100%;
-  background: radial-gradient(circle at top left, #121A1F 0%, #0A0C10 40%, #0A0C10 100%);
+  min-height: 100%;
+  /* The solid colour matters as much as the gradient: it is what the browser
+     paints across the whole canvas, including the overscroll area below the
+     document that iOS Safari would otherwise fill with its light default. */
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at top left, #121A1F 0%, #0A0C10 40%, #0A0C10 100%);
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
