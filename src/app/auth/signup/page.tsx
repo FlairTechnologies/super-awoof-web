@@ -7,6 +7,7 @@ import { Input, PasswordInput } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { baseUrl } from "@/lib/constants";
+import { attributionPayload } from "@/lib/attribution";
 
 function SignUpPhoneForm() {
   const router = useRouter();
@@ -40,6 +41,7 @@ function SignUpPhoneForm() {
         fullname: fullName.trim(),
         phone: cleanPhone,
         password,
+        ...attributionPayload(),
       });
       showToast(response.data.msg || "Account created!", "success");
       localStorage.setItem("pendingPhone", cleanPhone);

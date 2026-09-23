@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { ToastProvider } from "@/context/ToastContext";
+import { AttributionCapture } from "@/components/AttributionCapture";
 
 export const metadata: Metadata = {
   title: "Super Awoof – Win Big with Every Spin",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <AttributionCapture />
         <ToastProvider>
           <ResponsiveLayout>{children}</ResponsiveLayout>
         </ToastProvider>
