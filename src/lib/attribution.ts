@@ -13,6 +13,34 @@ export type Attribution = {
 
 const STORAGE_KEY = "attribution";
 
+// Networks differ on what they call these, and some append their own names
+// alongside whatever template they were given. Checked in order, first valid
+// value wins.
+const TXID_KEYS = ["txid", "click_id", "clickid"];
+const PUBID_KEYS = ["pubid", "pub_id", "publisher_id"];
+
+/**
+ * Returns a usable value, or "" for anything that is not one.
+ *
+ * A network that fails to substitute its macros sends the placeholder through
+ * literally, as "{click_id}". Storing that would mean reporting a conversion
+ * against an id that identifies nobody, so placeholders are rejected here.
+ */
+const clean = (value: string | null): string => {
+  const trimmed = value?.trim() ?? "";
+  if (!trimmed.length) return "";
+  if (/^[{[].*[}\]]$/.test(trimmed)) return "";
+  return trimmed;
+};
+
+const firstValid = (params: URLSearchParams, keys: string[]): string => {
+  for (const key of keys) {
+    const value = clean(params.get(key));
+    if (value.length) return value;
+  }
+  return "";
+};
+
 // How long a click stays creditable. Beyond this a signup counts as organic
 // rather than being attributed to a click the user barely remembers.
 const ATTRIBUTION_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
@@ -27,10 +55,10 @@ export const captureAttribution = (search?: string) => {
 
   try {
     const params = new URLSearchParams(search ?? window.location.search);
-    const txid = params.get("txid")?.trim();
-    const pubid = params.get("pubid")?.trim();
+    const txid = firstValid(params, TXID_KEYS);
+    const pubid = firstValid(params, PUBID_KEYS);
 
-    if (!txid?.length || !pubid?.length) return;
+    if (!txid.length || !pubid.length) return;
 
     const value: Attribution = { txid, pubid, ts: Date.now() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
