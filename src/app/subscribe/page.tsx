@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import { Input } from "@/components/Input";
@@ -25,10 +26,13 @@ const PLANS = [
 ];
 
 function SubscribeForm() {
+  const router = useRouter();
   const { showToast } = useToast();
+  const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [pcode, setPcode] = useState("2225");
   const [loading, setLoading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [instructions, setInstructions] = useState<{
     msg: string;
     shortCode: string;
@@ -38,10 +42,23 @@ function SubscribeForm() {
   const selected = PLANS.find((p) => p.pcode === pcode) ?? PLANS[1];
 
   const handleSubscribe = async () => {
+    if (fullName.trim().length < 3) {
+      showToast("Please enter your full name.", "error");
+      return;
+    }
     const cleanPhone = phone.replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length < 10 || cleanPhone.length > 11) {
       showToast("Please enter a valid 10 or 11-digit MTN number.", "error");
       return;
+    }
+
+    // Held until they confirm they have subscribed: the account cannot be
+    // created until MTN tells us the charge went through.
+    try {
+      localStorage.setItem("subscribeFullName", fullName.trim());
+      localStorage.setItem("subscribePhone", cleanPhone);
+    } catch {
+      // Storage unavailable; the details stay in component state for this visit.
     }
 
     const attribution = attributionPayload();
@@ -77,6 +94,69 @@ function SubscribeForm() {
       showToast(message, "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Creates the account once the subscriber says they have paid.
+   *
+   * Registration is only accepted after MTN's billing callback has landed, so
+   * this doubles as the check that the subscription actually went through. A
+   * rejection usually means the callback has not arrived yet rather than
+   * anything being wrong, so it is phrased as "try again in a moment".
+   */
+  const handleConfirmedSubscription = async () => {
+    let name = fullName.trim();
+    let number = phone.replace(/\D/g, "");
+    try {
+      name = name || localStorage.getItem("subscribeFullName") || "";
+      number = number || localStorage.getItem("subscribePhone") || "";
+    } catch {
+      // fall back to whatever is in component state
+    }
+
+    if (!name || !number) {
+      showToast("Please enter your name and number first.", "error");
+      return;
+    }
+
+    try {
+      setConfirming(true);
+      await axios.post(`${baseUrl}/account/register`, {
+        fullname: name,
+        phone: number,
+      });
+
+      try {
+        localStorage.setItem("pendingPhone", number);
+        localStorage.removeItem("pendingEmail");
+        localStorage.setItem("verifyEndpoint", "/account/verify");
+        localStorage.setItem("isNewAccount", "true");
+      } catch {
+        // The OTP screen reads these; without storage it will ask again.
+      }
+
+      showToast("Subscription confirmed! Check your SMS for the code.", "success");
+      setTimeout(() => router.push("/auth/otp"), 900);
+    } catch (error: unknown) {
+      const message =
+        (axios.isAxiosError(error) &&
+          (error.response?.data?.message || error.response?.data?.error)) ||
+        "";
+
+      // Already registered: they are a returning user, so send them to sign in.
+      if (message.toLowerCase().includes("already exists")) {
+        showToast("You already have an account — signing you in.", "success");
+        setTimeout(() => router.push("/auth/signin"), 900);
+        return;
+      }
+
+      showToast(
+        "We haven't received your subscription from MTN yet. Give it a moment and tap again.",
+        "error",
+      );
+    } finally {
+      setConfirming(false);
     }
   };
 
@@ -166,7 +246,7 @@ function SubscribeForm() {
                 </div>
               </div>
               <a
-                href={`tel:${instructions.ussd}`}
+                href={`tel:${instructions.ussd.replace(/#/g, "%23")}`}
                 style={{
                   textAlign: "center",
                   fontSize: 14,
@@ -177,6 +257,17 @@ function SubscribeForm() {
               >
                 Open dialler
               </a>
+
+              <Button
+                text="I have subscribed"
+                onClick={handleConfirmedSubscription}
+                isLoading={confirming}
+              />
+
+              <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.6, textAlign: "center" }}>
+                Tap this once your subscription is confirmed by SMS. We'll send
+                you a code to finish setting up your account.
+              </p>
             </div>
           ) : (
             <>
@@ -213,6 +304,13 @@ function SubscribeForm() {
                   );
                 })}
               </div>
+
+              <Input
+                label="Full Name"
+                placeholder="Your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
 
               <Input
                 label="MTN Phone Number"
