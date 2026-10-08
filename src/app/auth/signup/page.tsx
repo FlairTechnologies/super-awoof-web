@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
-import { Input, PasswordInput } from "@/components/Input";
+import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { baseUrl } from "@/lib/constants";
@@ -14,11 +14,10 @@ function SignUpPhoneForm() {
   const { showToast } = useToast();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!fullName || !phone || !password) {
+    if (!fullName || !phone) {
       showToast("Please fill in all fields.", "error");
       return;
     }
@@ -31,16 +30,11 @@ function SignUpPhoneForm() {
       showToast("Please enter a valid 10 or 11-digit phone number.", "error");
       return;
     }
-    if (password.length < 8) {
-      showToast("Password must be at least 8 characters long.", "error");
-      return;
-    }
     try {
       setLoading(true);
       const response = await axios.post(`${baseUrl}/account/register`, {
         fullname: fullName.trim(),
         phone: cleanPhone,
-        password,
         ...attributionPayload(),
       });
       showToast(response.data.msg || "Account created!", "success");
@@ -138,12 +132,6 @@ function SignUpPhoneForm() {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-            />
-            <PasswordInput
-              label="Password"
-              placeholder="Min. 8 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
