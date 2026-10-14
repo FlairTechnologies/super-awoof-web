@@ -81,6 +81,20 @@ function SubscribeForm() {
         ...attribution,
       });
       const data = response.data?.data ?? response.data;
+
+      // With the anti-fraud layer in front, the subscription is completed on
+      // their page and they call our callback. Hand the visitor straight over
+      // rather than showing carrier instructions they no longer need.
+      if (data.redirectUrl) {
+        try {
+          localStorage.setItem("subscribeTrxId", data.trxId || "");
+        } catch {
+          // Only used for support lookups; not worth failing the handoff.
+        }
+        window.location.href = data.redirectUrl;
+        return;
+      }
+
       setInstructions({
         msg: data.msg,
         shortCode: data.shortCode ?? "20138",
