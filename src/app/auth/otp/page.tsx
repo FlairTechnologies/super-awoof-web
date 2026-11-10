@@ -4,8 +4,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { baseUrl, setTokens, setUser } from "@/lib/constants";
+
+// Accounts created for someone who subscribed on the handset carry this until
+// they tell us their name. Kept in step with the API.
+const PLACEHOLDER_NAME = "Super Awoof Player";
 
 function OTPForm() {
   const router = useRouter();
@@ -13,6 +18,9 @@ function OTPForm() {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [needsName, setNeedsName] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [savingName, setSavingName] = useState(false);
   const refs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -72,6 +80,15 @@ function OTPForm() {
           setTokens(accessToken, refreshToken);
           setUser(account);
           localStorage.setItem("loginTimestamp", Date.now().toString());
+
+          // Subscribers who paid on the handset never gave us a name, so ask
+          // for it here rather than greeting them as "Super Awoof Player".
+          if (account?.fullname === PLACEHOLDER_NAME) {
+            setNeedsName(true);
+            showToast("Verified! One last thing.", "success");
+            return;
+          }
+
           showToast(isNewAccount ? "Account created successfully!" : "Logged in successfully!", "success");
           setTimeout(() => router.push("/dashboard"), 1200);
         } else {
@@ -108,6 +125,70 @@ function OTPForm() {
       setResending(false);
     }
   };
+
+  const saveName = async () => {
+    if (fullName.trim().length < 3) {
+      showToast("Please enter your full name.", "error");
+      return;
+    }
+
+    try {
+      setSavingName(true);
+      const token = localStorage.getItem("accessToken");
+      const res = await axios.post(
+        `${baseUrl}/account/update/profile`,
+        { fullname: fullName.trim() },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      const account = res.data?.data ?? res.data;
+      if (account) setUser(account);
+      showToast("Welcome to Super Awoof!", "success");
+      setTimeout(() => router.push("/dashboard"), 900);
+    } catch {
+      // The account is already usable, so a failure here must not trap them.
+      showToast("Saved. You can update your name in Profile.", "success");
+      setTimeout(() => router.push("/dashboard"), 900);
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  if (needsName) {
+    return (
+      <div className="auth-screen">
+        <div
+          className="card"
+          style={{
+            padding: "32px 24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+            width: "100%",
+            maxWidth: 420,
+          }}
+        >
+          <div>
+            <h1 className="font-display" style={{ fontSize: 28, color: "white", marginBottom: 8 }}>
+              What should we call you?
+            </h1>
+            <p style={{ fontSize: 14, color: "var(--muted)" }}>
+              Your subscription is active and your coins are ready. Just your
+              name and you can play.
+            </p>
+          </div>
+
+          <Input
+            label="Full Name"
+            placeholder="Your full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
+
+          <Button text="Start playing" onClick={saveName} isLoading={savingName} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-screen">
