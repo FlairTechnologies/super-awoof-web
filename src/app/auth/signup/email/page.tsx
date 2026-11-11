@@ -103,7 +103,7 @@ function SignUpEmailForm() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 16 }}>
-            {["Free to join", "Instant payouts", "Play anytime, anywhere"].map((f) => (
+            {["Free to join", "Cash out to your bank", "Play anytime, anywhere"].map((f) => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div
                   style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)" }}
@@ -171,24 +171,29 @@ function SignUpEmailForm() {
             <Input
               label="Full Name"
               placeholder="Your full name"
+              autoComplete="name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
             <Input
               label="Email Address"
               placeholder="you@example.com"
+              inputMode="email"
+              autoComplete="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <PasswordInput
               label="Create Password"
+              autoComplete="new-password"
               placeholder="Min. 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
             <PasswordInput
               label="Confirm Password"
+              autoComplete="new-password"
               placeholder="Repeat your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

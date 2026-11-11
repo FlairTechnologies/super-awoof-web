@@ -87,7 +87,7 @@ function SignInEmailForm() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 16 }}>
-            {["Instant payouts", "Provably fair", "Secure platform"].map((f) => (
+            {["Cash out to your bank", "Coins every cycle", "Stop anytime"].map((f) => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div
                   style={{
@@ -127,12 +127,17 @@ function SignInEmailForm() {
               label="Email Address"
               placeholder="you@example.com"
               type="email"
+              inputMode="email"
+              autoComplete="email"
+              onEnter={handleLogin}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <PasswordInput
               label="Password"
               placeholder="Your password"
+              autoComplete="current-password"
+              onEnter={handleLogin}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

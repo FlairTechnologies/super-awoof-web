@@ -91,7 +91,7 @@ function SignUpPhoneForm() {
             </p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 16 }}>
-            {["Free to join", "Instant payouts", "Play anytime, anywhere"].map((f) => (
+            {["Free to join", "Cash out to your bank", "Play anytime, anywhere"].map((f) => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)" }} className="pulse-dot" />
                 <span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{f}</span>

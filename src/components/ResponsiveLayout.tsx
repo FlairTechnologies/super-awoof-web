@@ -13,15 +13,15 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
   const { showToast } = useToast();
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // Routes that must render without a session. /subscribe belongs here above
-  // all: it is the landing page paid traffic arrives on, and those visitors by
-  // definition have no account yet. Treating it as a dashboard page bounced
-  // every one of them to the sign-in screen.
-  const isShell =
-    pathname === "/" ||
-    pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/auth") ||
-    pathname.startsWith("/subscribe");
+  // Everything except the signed-in area renders without a session.
+  //
+  // This was written the other way round -- an allowlist of public prefixes --
+  // and /subscribe was missing from it, so the landing page paid traffic
+  // arrives on redirected every visitor without an account, which is everyone
+  // it exists for. Unknown paths had the same problem, which hid the 404 page
+  // behind the sign-in screen. Naming the one protected area instead means a
+  // page added later is public by default and cannot repeat either bug.
+  const isShell = !pathname.startsWith("/dashboard");
 
   // 1. Axios interceptor and auth verification
   useEffect(() => {

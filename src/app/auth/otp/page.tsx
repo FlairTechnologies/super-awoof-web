@@ -259,7 +259,7 @@ function OTPForm() {
             </p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 16 }}>
-            {["Secure verification", "Instant access", "Provably fair"].map((f) => (
+            {["Secure verification", "One code, one sign-in", "Stop anytime"].map((f) => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)" }} className="pulse-dot" />
                 <span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{f}</span>

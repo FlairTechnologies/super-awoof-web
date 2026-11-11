@@ -54,6 +54,8 @@ function ForgotPasswordForm() {
       <Input
         label="Email or Phone"
         placeholder="email / phone number"
+        autoComplete="username"
+        onEnter={handleReset}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
