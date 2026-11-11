@@ -42,6 +42,9 @@ function SubscribeForm() {
     // the primary route but not a universal one, so it is offered alongside
     // the dial and text instructions rather than replacing them.
     redirectUrl?: string | null;
+    // A checkout page exists for this plan but was withheld because the
+    // visitor is not on MTN's network. Switching to mobile data gets it.
+    needsMobileData?: boolean;
   } | null>(null);
 
   const selected = PLANS.find((p) => p.pcode === pcode) ?? PLANS[1];
@@ -97,6 +100,7 @@ function SubscribeForm() {
         ussd: data.ussd ?? "*920*20138#",
         keyword: data.keyword ?? "SA1",
         redirectUrl: data.redirectUrl ?? null,
+        needsMobileData: !!data.checkoutNeedsMobileData,
       });
     } catch (error: unknown) {
       const message =
@@ -248,10 +252,23 @@ function SubscribeForm() {
                     }}
                   />
                   <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.6, textAlign: "center" }}>
-                    Turn off Wi-Fi first — this only works on MTN mobile data.
-                    On Wi-Fi, use the code below instead.
+                    One tap, billed to your MTN airtime. No code to dial.
                   </p>
                 </div>
+              ) : null}
+
+              {instructions.needsMobileData ? (
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: "var(--muted)",
+                    lineHeight: 1.6,
+                    textAlign: "center",
+                  }}
+                >
+                  On MTN mobile data you can subscribe in one tap. Turn off
+                  Wi-Fi and reload this page, or just dial the code below.
+                </p>
               ) : null}
 
               <div
