@@ -37,6 +37,11 @@ function SubscribeForm() {
     msg: string;
     shortCode: string;
     ussd: string;
+    keyword: string;
+    // The carrier checkout page, when one is configured for this plan. It is
+    // the primary route but not a universal one, so it is offered alongside
+    // the dial and text instructions rather than replacing them.
+    redirectUrl?: string | null;
   } | null>(null);
 
   const selected = PLANS.find((p) => p.pcode === pcode) ?? PLANS[1];
@@ -61,17 +66,10 @@ function SubscribeForm() {
       // Storage unavailable; the details stay in component state for this visit.
     }
 
+    // Sent whether or not there is a click to attribute. An organic visitor
+    // still needs the trxId the endpoint mints, because that is what the
+    // checkout callback echoes back to tell us which number subscribed.
     const attribution = attributionPayload();
-    if (!attribution.txid || !attribution.pubid) {
-      // Nothing to attribute: still let them subscribe, just send them straight
-      // to the carrier routes rather than recording a click that does not exist.
-      setInstructions({
-        msg: `To start playing, dial *920*20138# or text SA1 to 20138.`,
-        shortCode: "20138",
-        ussd: "*920*20138#",
-      });
-      return;
-    }
 
     try {
       setLoading(true);
@@ -82,23 +80,23 @@ function SubscribeForm() {
       });
       const data = response.data?.data ?? response.data;
 
-      // With the anti-fraud layer in front, the subscription is completed on
-      // their page and they call our callback. Hand the visitor straight over
-      // rather than showing carrier instructions they no longer need.
-      if (data.redirectUrl) {
-        try {
-          localStorage.setItem("subscribeTrxId", data.trxId || "");
-        } catch {
-          // Only used for support lookups; not worth failing the handoff.
-        }
-        window.location.href = data.redirectUrl;
-        return;
+      try {
+        localStorage.setItem("subscribeTrxId", data.trxId || "");
+      } catch {
+        // Only used for support lookups; not worth failing the handoff.
       }
 
+      // Both routes are shown. The checkout page bills in the browser and is
+      // the quicker path, but the carrier's anti-fraud layer refuses requests
+      // that do not arrive over its own network, so a visitor on Wi-Fi needs
+      // the dial and text instructions to be right there rather than hidden
+      // behind a failed redirect.
       setInstructions({
         msg: data.msg,
         shortCode: data.shortCode ?? "20138",
         ussd: data.ussd ?? "*920*20138#",
+        keyword: data.keyword ?? "SA1",
+        redirectUrl: data.redirectUrl ?? null,
       });
     } catch (error: unknown) {
       const message =
@@ -240,6 +238,22 @@ function SubscribeForm() {
           {instructions ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <p style={{ fontSize: 15, color: "white", lineHeight: 1.6 }}>{instructions.msg}</p>
+
+              {instructions.redirectUrl ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <Button
+                    text={`Subscribe now · \u20a6${selected.price}`}
+                    onClick={() => {
+                      window.location.href = instructions.redirectUrl as string;
+                    }}
+                  />
+                  <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.6, textAlign: "center" }}>
+                    Turn off Wi-Fi first — this only works on MTN mobile data.
+                    On Wi-Fi, use the code below instead.
+                  </p>
+                </div>
+              ) : null}
+
               <div
                 style={{
                   border: "1px solid var(--border)",
@@ -250,12 +264,14 @@ function SubscribeForm() {
                   gap: 12,
                 }}
               >
-                <div style={{ fontSize: 13, color: "var(--muted)" }}>Dial</div>
+                <div style={{ fontSize: 13, color: "var(--muted)" }}>
+                  {instructions.redirectUrl ? "Or dial" : "Dial"}
+                </div>
                 <div className="font-display" style={{ fontSize: 26, color: "var(--green)" }}>
                   {instructions.ussd}
                 </div>
                 <div style={{ fontSize: 13, color: "var(--muted)" }}>
-                  or text <strong style={{ color: "white" }}>SA1</strong> to{" "}
+                  or text <strong style={{ color: "white" }}>{instructions.keyword}</strong> to{" "}
                   <strong style={{ color: "white" }}>{instructions.shortCode}</strong>
                 </div>
               </div>
