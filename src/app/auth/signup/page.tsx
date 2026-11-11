@@ -44,12 +44,19 @@ function SignUpPhoneForm() {
       localStorage.setItem("isNewAccount", "true");
       setTimeout(() => router.push("/auth/otp"), 1200);
     } catch (error: any) {
-      showToast(
+      const message =
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Registration failed. Try again.",
-        "error",
-      );
+        error.response?.data?.error ||
+        "Registration failed. Try again.";
+
+      // "You do not have an active subscription yet" is not something the
+      // visitor can act on from here, so hand them to the page that can.
+      if (/subscription/i.test(message)) {
+        showToast("You need a subscription first. Taking you to the plans...", "error");
+        setTimeout(() => router.push("/subscribe"), 1200);
+      } else {
+        showToast(message, "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -123,15 +130,20 @@ function SignUpPhoneForm() {
             <Input
               label="Full Name"
               placeholder="Your full name"
+              autoComplete="name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              onEnter={handleRegister}
             />
             <Input
               label="Phone Number"
               placeholder="0800 000 0000"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onEnter={handleRegister}
             />
           </div>
 

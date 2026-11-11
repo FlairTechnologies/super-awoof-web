@@ -5,7 +5,7 @@ export default function Onboarding2() {
   return (
     <OnboardingTemplate
       index={1}
-      nextPath="/auth/signin"
+      nextPath="/subscribe"
       nextLabel="Get Started"
     />
   );

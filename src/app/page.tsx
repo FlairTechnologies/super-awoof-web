@@ -11,7 +11,7 @@ export default function SplashScreen() {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => {
-        const next = prev + 4;
+        const next = prev + 14;
         if (next >= 100) {
           clearInterval(interval);
           const token = getAccessToken();
@@ -22,11 +22,13 @@ export default function SplashScreen() {
             } else {
               router.push("/onboarding");
             }
-          }, 300);
+          }, 120);
         }
         return Math.min(next, 100);
       });
-    }, 80);
+      // 14% every 60ms holds the brand for roughly half a second rather
+      // than the 2.3s the original 4%-per-80ms ramp cost every cold start.
+    }, 60);
     return () => clearInterval(interval);
   }, [router]);
 

@@ -53,6 +53,13 @@ function SignUpEmailForm() {
       localStorage.removeItem("pendingPhone");
       localStorage.setItem("verifyEndpoint", "/account/verify");
       localStorage.setItem("isNewAccount", "true");
+      // They have an account but no subscription, so the plans page is the
+      // only screen that can move them forward.
+      try {
+        sessionStorage.setItem("returnTo", "/subscribe");
+      } catch {
+        // Non-fatal: they land on the dashboard and can reach plans from there.
+      }
       setTimeout(() => router.push("/auth/otp"), 1200);
     } catch (error: any) {
       showToast(
@@ -126,6 +133,38 @@ function SignUpEmailForm() {
               Create Account
             </h2>
             <p style={{ fontSize: 13, color: "var(--muted)" }}>Fill in your details to get started</p>
+          </div>
+
+          {/* Playing is billed through an MTN subscription, which is keyed to a
+              phone number. An email-only account can never be credited coins,
+              so say so here rather than letting someone find out afterwards. */}
+          <div
+            style={{
+              border: "1px solid var(--border)",
+              borderRadius: 12,
+              padding: "14px 16px",
+              fontSize: 12,
+              color: "var(--muted)",
+              lineHeight: 1.6,
+            }}
+          >
+            Coins are credited through an MTN subscription, so you will still
+            need to subscribe with an MTN number before you can play.{" "}
+            <button
+              type="button"
+              onClick={() => router.push("/auth/signup")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                color: "var(--green)",
+                fontWeight: 700,
+                fontSize: 12,
+              }}
+            >
+              Sign up with your number instead
+            </button>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

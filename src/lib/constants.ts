@@ -17,10 +17,33 @@ export const setTokens = (accessToken: string, refreshToken: string) => {
   localStorage.setItem("refreshToken", refreshToken);
 };
 
+/**
+ * Clears the session and everything personal alongside it.
+ *
+ * The bank beneficiary in particular held a full name and account number and
+ * survived sign-out indefinitely, which is a problem on the shared and
+ * borrowed handsets a lot of this audience uses.
+ */
 export const clearTokens = () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("user");
+  [
+    "accessToken",
+    "refreshToken",
+    "user",
+    "lastBeneficiary",
+    "pendingPhone",
+    "pendingEmail",
+    "isNewAccount",
+    "verifyEndpoint",
+    "subscribeFullName",
+    "subscribePhone",
+    "subscribeTrxId",
+  ].forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // Storage unavailable; nothing was stored to begin with.
+    }
+  });
 };
 
 export const getUser = () => {

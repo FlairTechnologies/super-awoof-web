@@ -159,16 +159,29 @@ function Dashboard() {
       <Modal
         visible={depositModal}
         onClose={() => setDepositModal(false)}
-        title="Your Balance"
-        confirmText={canDeposit(user) ? "Deposit Coins" : "Wallet"}
-        cancelText={canDeposit(user) ? "Wallet" : "Close"}
+        title={(user?.coins ?? 0) > 0 ? "Your Balance" : "You're out of coins"}
+        /* Coins come from the MTN subscription, not from a deposit. With no
+           coins left, renewing is the action that actually gets them playing
+           again, so it leads -- the wallet is where they go to cash out. */
+        confirmText={
+          (user?.coins ?? 0) > 0
+            ? canDeposit(user)
+              ? "Deposit Coins"
+              : "Wallet"
+            : "Get more coins"
+        }
+        cancelText={(user?.coins ?? 0) > 0 ? (canDeposit(user) ? "Wallet" : "Close") : "Wallet"}
         onConfirm={() => {
           setDepositModal(false);
+          if ((user?.coins ?? 0) <= 0) {
+            router.push("/subscribe");
+            return;
+          }
           router.push(canDeposit(user) ? "/dashboard/deposit" : "/dashboard/wallet");
         }}
         onCancel={() => {
           setDepositModal(false);
-          if (canDeposit(user)) router.push("/dashboard/wallet");
+          if ((user?.coins ?? 0) <= 0 || canDeposit(user)) router.push("/dashboard/wallet");
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "48px 0 32px 0" }}>
@@ -179,6 +192,11 @@ function Dashboard() {
             <p className="font-display" style={{ fontSize: 64, color: "white", lineHeight: 1 }}>
               {user?.coins ?? 0}
             </p>
+            {(user?.coins ?? 0) <= 0 ? (
+              <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginTop: 14, maxWidth: 260 }}>
+                Coins are credited each time your MTN subscription renews.
+              </p>
+            ) : null}
           </div>
         </div>
       </Modal>

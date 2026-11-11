@@ -13,7 +13,15 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
   const { showToast } = useToast();
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const isShell = pathname === "/" || pathname.startsWith("/onboarding") || pathname.startsWith("/auth");
+  // Routes that must render without a session. /subscribe belongs here above
+  // all: it is the landing page paid traffic arrives on, and those visitors by
+  // definition have no account yet. Treating it as a dashboard page bounced
+  // every one of them to the sign-in screen.
+  const isShell =
+    pathname === "/" ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/subscribe");
 
   // 1. Axios interceptor and auth verification
   useEffect(() => {
@@ -55,6 +63,7 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
           } else {
             clearTokens();
             localStorage.removeItem("loginTimestamp");
+            showToast("Your session has ended. Please sign in again.", "error");
             router.push("/auth/signin");
           }
         }
@@ -88,6 +97,15 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
       if (!token || !u) {
         clearTokens();
         localStorage.removeItem("loginTimestamp");
+        // Remember where they were headed so signing in returns them there
+        // instead of dropping everyone on the dashboard.
+        try {
+          if (pathname && pathname !== "/auth/signin") {
+            sessionStorage.setItem("returnTo", pathname);
+          }
+        } catch {
+          // Storage unavailable; they just land on the dashboard.
+        }
         router.push("/auth/signin");
         return;
       }
@@ -137,7 +155,15 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
   return (
     <div className="flex bg-[#0D0F14]" style={{ height: "100dvh", width: "100vw", overflow: "hidden" }}>
       <SideNav />
-      <main className="flex-1 overflow-y-auto" style={{ height: "100dvh" }}>
+      <main
+        className="flex-1 overflow-y-auto"
+        style={{
+          height: "100dvh",
+          // The tab bar is fixed, so without this the last control on every
+          // page sits underneath it and cannot be tapped.
+          paddingBottom: "var(--tabbar-space, 0px)",
+        }}
+      >
         {children}
       </main>
       <div className="md:hidden" style={{ position: "absolute" }}>
@@ -154,10 +180,10 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
             zIndex: 90,
             display: "block",
             textAlign: "center",
-            fontSize: 9,
+            fontSize: 11,
             color: "var(--muted)",
-            opacity: 0.45,
-            padding: "4px 0",
+            opacity: 0.8,
+            padding: "6px 0 calc(6px + env(safe-area-inset-bottom, 0px))",
             textDecoration: "none",
             background: "var(--surface)",
             borderTop: "1px solid var(--border)",

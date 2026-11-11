@@ -4,12 +4,45 @@ import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { ToastProvider } from "@/context/ToastContext";
 import { AttributionCapture } from "@/components/AttributionCapture";
 
+const SITE_URL = "https://www.superawoof.ng";
+const TITLE = "Super Awoof – Win Big with Every Spin";
+const DESCRIPTION =
+  "Spin the reels and win big. Subscribe on MTN, get coins every cycle, and cash out straight to your bank.";
+
 export const metadata: Metadata = {
-  title: "Super Awoof – Win Big with Every Spin",
-  description: "Spin the reels and win big. Join thousands of players already winning on Super Awoof.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: "Super Awoof",
+  manifest: "/manifest.webmanifest",
+  alternates: { canonical: "/" },
   icons: {
     icon: "/images/favicon.png",
     apple: "/images/favicon.png",
+  },
+  // Without these a link shared on WhatsApp -- which is how this audience
+  // shares everything -- renders as bare text with no title and no image.
+  openGraph: {
+    type: "website",
+    siteName: "Super Awoof",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    locale: "en_NG",
+    images: [
+      {
+        url: "/images/favicon.png",
+        width: 512,
+        height: 512,
+        alt: "Super Awoof",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/images/favicon.png"],
   },
 };
 
@@ -18,6 +51,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#0A0C10",
   colorScheme: "dark",
+  // Lets the page reach under the notch and home indicator, which is what
+  // makes env(safe-area-inset-*) report real values.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

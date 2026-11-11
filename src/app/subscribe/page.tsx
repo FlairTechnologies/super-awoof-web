@@ -20,9 +20,9 @@ import { attributionPayload } from "@/lib/attribution";
  */
 
 const PLANS = [
+  { pcode: "2223", name: "Daily", price: 100, validity: "1 day", coins: 5 },
   { pcode: "2224", name: "Weekly", price: 200, validity: "7 days", coins: 20 },
   { pcode: "2225", name: "Monthly", price: 500, validity: "30 days", coins: 50 },
-  { pcode: "2223", name: "Daily", price: 100, validity: "1 day", coins: 5 },
 ];
 
 function SubscribeForm() {
@@ -30,7 +30,7 @@ function SubscribeForm() {
   const { showToast } = useToast();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [pcode, setPcode] = useState("2225");
+  const [pcode, setPcode] = useState("2223");
   const [loading, setLoading] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [instructions, setInstructions] = useState<{
@@ -45,6 +45,9 @@ function SubscribeForm() {
     // A checkout page exists for this plan but was withheld because the
     // visitor is not on MTN's network. Switching to mobile data gets it.
     needsMobileData?: boolean;
+    // Which plan they picked. The dial code opens a menu that cannot know
+    // their choice, so the page has to tell them what to select.
+    planLabel?: string;
   } | null>(null);
 
   const selected = PLANS.find((p) => p.pcode === pcode) ?? PLANS[1];
@@ -101,6 +104,7 @@ function SubscribeForm() {
         keyword: data.keyword ?? "SA1",
         redirectUrl: data.redirectUrl ?? null,
         needsMobileData: !!data.checkoutNeedsMobileData,
+        planLabel: `${selected.name} (\u20a6${selected.price})`,
       });
     } catch (error: unknown) {
       const message =
@@ -291,6 +295,12 @@ function SubscribeForm() {
                   or text <strong style={{ color: "white" }}>{instructions.keyword}</strong> to{" "}
                   <strong style={{ color: "white" }}>{instructions.shortCode}</strong>
                 </div>
+                {instructions.planLabel ? (
+                  <div style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.6, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+                    Choose <strong style={{ color: "white" }}>{instructions.planLabel}</strong> when
+                    the menu opens — the code cannot pick your plan for you.
+                  </div>
+                ) : null}
               </div>
               <a
                 href={`tel:${instructions.ussd.replace(/#/g, "%23")}`}
@@ -355,16 +365,21 @@ function SubscribeForm() {
               <Input
                 label="Full Name"
                 placeholder="Your full name"
+                autoComplete="name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                onEnter={handleSubscribe}
               />
 
               <Input
                 label="MTN Phone Number"
                 placeholder="0803 000 0000"
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                onEnter={handleSubscribe}
               />
 
               <Button

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
@@ -12,12 +12,34 @@ import { baseUrl, setTokens, setUser } from "@/lib/constants";
 // they tell us their name. Kept in step with the API.
 const PLACEHOLDER_NAME = "Super Awoof Player";
 
+const RESEND_COOLDOWN_SECONDS = 45;
+
+/**
+ * Where to land after verifying.
+ *
+ * The route guard records the page someone was trying to reach before being
+ * sent to sign in, so they end up there rather than always on the dashboard.
+ */
+const destinationAfterVerify = (): string => {
+  try {
+    const target = sessionStorage.getItem("returnTo");
+    sessionStorage.removeItem("returnTo");
+    if (target && target.startsWith("/") && !target.startsWith("//")) return target;
+  } catch {
+    // Storage unavailable; fall through to the dashboard.
+  }
+  return "/dashboard";
+};
+
 function OTPForm() {
   const router = useRouter();
   const { showToast } = useToast();
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  // Every resend is a real SMS that costs money, so the button is held shut
+  // for a while after each one rather than being tappable on repeat.
+  const [resendIn, setResendIn] = useState(RESEND_COOLDOWN_SECONDS);
   const [needsName, setNeedsName] = useState(false);
   const [fullName, setFullName] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -90,7 +112,7 @@ function OTPForm() {
           }
 
           showToast(isNewAccount ? "Account created successfully!" : "Logged in successfully!", "success");
-          setTimeout(() => router.push("/dashboard"), 1200);
+          setTimeout(() => router.push(destinationAfterVerify()), 1200);
         } else {
           showToast("Verification successful!", "success");
           setTimeout(() => router.push("/auth/signin"), 1200);
@@ -104,8 +126,11 @@ function OTPForm() {
   };
 
   const handleResend = async () => {
+    if (resending || resendIn > 0) return;
+
     try {
       setResending(true);
+      setResendIn(RESEND_COOLDOWN_SECONDS);
       const phone = localStorage.getItem("pendingPhone");
       const email = localStorage.getItem("pendingEmail");
 
@@ -126,6 +151,18 @@ function OTPForm() {
     }
   };
 
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setInterval(() => setResendIn((n) => (n > 0 ? n - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [resendIn]);
+
+  useEffect(() => {
+    // The code is the only thing to do on this screen; land the cursor in it.
+    refs[0]?.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const saveName = async () => {
     if (fullName.trim().length < 3) {
       showToast("Please enter your full name.", "error");
@@ -143,11 +180,11 @@ function OTPForm() {
       const account = res.data?.data ?? res.data;
       if (account) setUser(account);
       showToast("Welcome to Super Awoof!", "success");
-      setTimeout(() => router.push("/dashboard"), 900);
+      setTimeout(() => router.push(destinationAfterVerify()), 900);
     } catch {
       // The account is already usable, so a failure here must not trap them.
       showToast("Saved. You can update your name in Profile.", "success");
-      setTimeout(() => router.push("/dashboard"), 900);
+      setTimeout(() => router.push(destinationAfterVerify()), 900);
     } finally {
       setSavingName(false);
     }
@@ -314,7 +351,7 @@ function OTPForm() {
               Didn&apos;t receive a code?{" "}
               <button
                 onClick={handleResend}
-                disabled={resending}
+                disabled={resending || resendIn > 0}
                 style={{
                   background: "none",
                   border: "none",
@@ -322,10 +359,11 @@ function OTPForm() {
                   fontSize: 13,
                   color: "var(--green)",
                   fontWeight: 700,
-                  opacity: resending ? 0.5 : 1,
+                  opacity: resending || resendIn > 0 ? 0.5 : 1,
+                  minHeight: 44,
                 }}
               >
-                {resending ? "Resending..." : "Resend"}
+                {resending ? "Resending..." : resendIn > 0 ? `Resend in ${resendIn}s` : "Resend"}
               </button>
             </p>
           </div>

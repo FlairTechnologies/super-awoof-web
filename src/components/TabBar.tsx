@@ -21,7 +21,8 @@ export const TabBar = () => {
       className="mobile-only"
       style={{
         position: "fixed",
-        bottom: 24,
+        // Sits above the iOS home indicator rather than under it.
+        bottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
         left: 16,
         right: 16,
         height: 72,

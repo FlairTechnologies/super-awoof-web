@@ -42,7 +42,8 @@ function SignInPhoneForm() {
       if (status === 406) {
         showToast("Please enter a valid MTN number.", "error");
       } else if (status === 400 && data?.message?.includes("subscription")) {
-        showToast("Please subscribe by sending 'SA1' to 20138 on MTN", "error");
+        showToast("You are not subscribed yet. Taking you to the plans...", "error");
+        setTimeout(() => router.push("/subscribe"), 1200);
       } else {
         showToast(data?.message || "An error occurred. Try again.", "error");
       }
@@ -80,7 +81,7 @@ function SignInPhoneForm() {
             </p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 16 }}>
-            {["Instant payouts", "Provably fair", "Secure platform"].map((f) => (
+            {["Cash out to your bank", "Coins every cycle", "Stop anytime"].map((f) => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)" }} className="pulse-dot" />
                 <span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{f}</span>
@@ -120,8 +121,11 @@ function SignInPhoneForm() {
               label="Phone Number"
               placeholder="0800 000 0000"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onEnter={handleLogin}
             />
           </div>
 
@@ -129,7 +133,7 @@ function SignInPhoneForm() {
             <Button text="Sign In" onClick={handleLogin} isLoading={loading} />
             <button
               onClick={() => router.push("/auth/signin/email")}
-              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--muted)", textAlign: "center" }}
+              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--muted)", textAlign: "center", minHeight: 44, width: "100%" }}
             >
               Use email instead
             </button>
@@ -139,7 +143,7 @@ function SignInPhoneForm() {
             New to Super Awoof?{" "}
             <button
               onClick={() => router.push("/auth/signup")}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--green)", fontWeight: 700 }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--green)", fontWeight: 700, minHeight: 44, padding: "0 8px" }}
             >
               Create account
             </button>

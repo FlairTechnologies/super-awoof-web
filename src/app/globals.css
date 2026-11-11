@@ -76,6 +76,11 @@ html, body {
   align-items: center !important;
   justify-content: center !important;
   height: 60px !important;
+  /* A flex child with the default shrink factor collapses to zero height when
+     its parent runs out of room, which silently removes the button from the
+     page instead of letting the parent scroll. */
+  flex-shrink: 0 !important;
+  min-height: 60px !important;
   width: 100%;
   border: none !important;
   border-radius: 16px !important;
@@ -359,6 +364,18 @@ input:-webkit-autofill:active {
   display: flex !important;
 }
 
+/* Height the floating tab bar occupies, including the iOS home indicator.
+   Pages add this to their bottom padding so nothing hides behind it. */
+:root {
+  --tabbar-space: 0px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --tabbar-space: calc(112px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (min-width: 768px) {
   .desktop-only {
     display: flex !important;
@@ -374,10 +391,20 @@ input:-webkit-autofill:active {
   height: 100%;
   width: 100%;
   display: flex;
+  /* Centred, but never at the cost of clipping the top out of reach. A flex
+     item taller than a scrolling container overflows both ends, and scrollTop
+     cannot go negative, so plain `center` makes the heading unreachable --
+     badly so on a phone once the keyboard halves the viewport. `safe center`
+     degrades to flex-start exactly when that would happen. The duplicated
+     declarations are the fallback for engines that do not know `safe`. */
   align-items: center;
+  align-items: safe center;
   justify-content: center;
+  justify-content: safe center;
   overflow-y: auto;
   padding: 24px 20px;
+  /* Clear the floating tab bar on mobile so the last control is never behind it. */
+  padding-bottom: calc(24px + var(--tabbar-space, 0px));
 }
 
 /* Two-column flex wrapper used by auth pages */

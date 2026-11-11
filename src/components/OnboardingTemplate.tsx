@@ -49,9 +49,10 @@ export function OnboardingTemplate({ index, nextPath, nextLabel }: OnboardingPag
           style={{
             background: "none", border: "none", cursor: "pointer",
             fontSize: 14, color: "var(--muted)", fontWeight: 500,
+            minHeight: 44, padding: "0 8px",
           }}
         >
-          Skip
+          Sign in
         </button>
       </div>
 
