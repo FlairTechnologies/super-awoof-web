@@ -20,9 +20,9 @@ import { attributionPayload } from "@/lib/attribution";
  */
 
 const PLANS = [
-  { pcode: "2223", name: "Daily", price: 100, validity: "1 day", coins: 5 },
-  { pcode: "2224", name: "Weekly", price: 200, validity: "7 days", coins: 20 },
-  { pcode: "2225", name: "Monthly", price: 500, validity: "30 days", coins: 50 },
+  { pcode: "2223", name: "Daily", price: 200, validity: "1 day", coins: 5 },
+  { pcode: "2224", name: "Weekly", price: 500, validity: "7 days", coins: 20 },
+  { pcode: "2225", name: "Monthly", price: 700, validity: "30 days", coins: 50 },
 ];
 
 function SubscribeForm() {

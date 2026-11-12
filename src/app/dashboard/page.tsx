@@ -160,28 +160,31 @@ function Dashboard() {
         visible={depositModal}
         onClose={() => setDepositModal(false)}
         title={(user?.coins ?? 0) > 0 ? "Your Balance" : "You're out of coins"}
-        /* Coins come from the MTN subscription, not from a deposit. With no
-           coins left, renewing is the action that actually gets them playing
-           again, so it leads -- the wallet is where they go to cash out. */
+        /* Where more coins come from depends on who the player is. A web
+           player buys them with a card; an MTN subscriber gets them when the
+           subscription renews, and cannot buy them. Sending either one down
+           the other's path is a dead end, so the action follows canDeposit. */
         confirmText={
           (user?.coins ?? 0) > 0
             ? canDeposit(user)
-              ? "Deposit Coins"
+              ? "Buy Coins"
               : "Wallet"
-            : "Get more coins"
+            : canDeposit(user)
+              ? "Buy Coins"
+              : "Renew subscription"
         }
-        cancelText={(user?.coins ?? 0) > 0 ? (canDeposit(user) ? "Wallet" : "Close") : "Wallet"}
+        cancelText={(user?.coins ?? 0) > 0 && !canDeposit(user) ? "Close" : "Wallet"}
         onConfirm={() => {
           setDepositModal(false);
-          if ((user?.coins ?? 0) <= 0) {
-            router.push("/subscribe");
+          if (canDeposit(user)) {
+            router.push("/dashboard/deposit");
             return;
           }
-          router.push(canDeposit(user) ? "/dashboard/deposit" : "/dashboard/wallet");
+          router.push((user?.coins ?? 0) <= 0 ? "/subscribe" : "/dashboard/wallet");
         }}
         onCancel={() => {
           setDepositModal(false);
-          if ((user?.coins ?? 0) <= 0 || canDeposit(user)) router.push("/dashboard/wallet");
+          router.push("/dashboard/wallet");
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "48px 0 32px 0" }}>
@@ -194,7 +197,9 @@ function Dashboard() {
             </p>
             {(user?.coins ?? 0) <= 0 ? (
               <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginTop: 14, maxWidth: 260 }}>
-                Coins are credited each time your MTN subscription renews.
+                {canDeposit(user)
+                  ? "Top up your coins with your card to keep playing."
+                  : "Coins are credited each time your MTN subscription renews."}
               </p>
             ) : null}
           </div>

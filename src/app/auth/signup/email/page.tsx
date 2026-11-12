@@ -53,13 +53,6 @@ function SignUpEmailForm() {
       localStorage.removeItem("pendingPhone");
       localStorage.setItem("verifyEndpoint", "/account/verify");
       localStorage.setItem("isNewAccount", "true");
-      // They have an account but no subscription, so the plans page is the
-      // only screen that can move them forward.
-      try {
-        sessionStorage.setItem("returnTo", "/subscribe");
-      } catch {
-        // Non-fatal: they land on the dashboard and can reach plans from there.
-      }
       setTimeout(() => router.push("/auth/otp"), 1200);
     } catch (error: any) {
       showToast(
@@ -135,9 +128,10 @@ function SignUpEmailForm() {
             <p style={{ fontSize: 13, color: "var(--muted)" }}>Fill in your details to get started</p>
           </div>
 
-          {/* Playing is billed through an MTN subscription, which is keyed to a
-              phone number. An email-only account can never be credited coins,
-              so say so here rather than letting someone find out afterwards. */}
+          {/* Signing up by email is a first-class route, not a lesser one: web
+              players buy coins with a card and never need an MTN number. The
+              MTN flow is simply the other way in, offered here for anyone who
+              would rather be billed to airtime. */}
           <div
             style={{
               border: "1px solid var(--border)",
@@ -148,8 +142,8 @@ function SignUpEmailForm() {
               lineHeight: 1.6,
             }}
           >
-            Coins are credited through an MTN subscription, so you will still
-            need to subscribe with an MTN number before you can play.{" "}
+            You will buy coins with your card to play. On MTN you can be billed
+            to your airtime instead.{" "}
             <button
               type="button"
               onClick={() => router.push("/auth/signup")}
@@ -163,7 +157,7 @@ function SignUpEmailForm() {
                 fontSize: 12,
               }}
             >
-              Sign up with your number instead
+              Use an MTN number instead
             </button>
           </div>
 
